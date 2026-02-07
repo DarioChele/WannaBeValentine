@@ -9,13 +9,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { touch-action: manipulation; overflow: hidden; }
+        body { 
+            touch-action: none; 
+            overflow: hidden; 
+            position: relative; 
+            width: 100vw; 
+            height: 100vh; 
+        }
         .heart { position: absolute; pointer-events: none; animation: float 3s linear forwards; }
         @keyframes float {
             0% { transform: translateY(0) scale(1); opacity: 1; }
             100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
         }
-        #btnNo { transition: all 0.1s ease; position: absolute; }
+        #btnNo { 
+            transition: all 0.2s ease; 
+            z-index: 999;
+        }
     </style>
 </head>
 <body class="bg-pink-100 flex flex-col items-center justify-center min-h-screen p-4 text-center">
@@ -27,8 +36,8 @@
             Wanna be my Valentine?
         </h1>
         
-        <div class="relative w-full max-w-md h-64 flex items-center justify-center gap-4">
-            <button id="btnYes" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-full text-2xl shadow-lg transform hover:scale-110 active:scale-95 transition-all">
+        <div class="flex flex-col md:flex-row items-center justify-center gap-10 mt-10" style="min-height: 200px;">
+            <button id="btnYes" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-12 rounded-full text-2xl shadow-lg transform hover:scale-110 active:scale-95 transition-all">
                 YES! 💖
             </button>
             
@@ -40,7 +49,7 @@
 
     <div id="successPage" class="hidden">
         <h1 class="text-5xl font-bold text-pink-600 mb-6">I KNEW IT! 😍</h1>
-        <p id="finalMessage" class="text-2xl text-gray-700 leading-relaxed"></p>
+        <p id="finalMessage" class="text-2xl text-gray-700 leading-relaxed whitespace-pre-line"></p>
         <div class="mt-8 text-7xl animate-bounce">❤️</div>
     </div>
 
@@ -80,11 +89,18 @@
         }
 
         // 2. Lógica del botón que huye
-        function moveNoButton() {
-            const x = Math.random() * (window.innerWidth - btnNo.offsetWidth - 20);
-            const y = Math.random() * (window.innerHeight - btnNo.offsetHeight - 20);
-            btnNo.style.left = `${x}px`;
-            btnNo.style.top = `${y}px`;
+        function moveNoButton() {    
+            const maxWidth = window.innerWidth - btnNo.offsetWidth - 50;
+            const maxHeight = window.innerHeight - btnNo.offsetHeight - 50;
+
+            // Generamos posiciones aleatorias dentro de lo visible
+            const randomX = Math.max(20,Math.floor(Math.random() * maxWidth));
+            const randomY = Math.max(20,Math.floor(Math.random() * maxHeight));
+
+            // Aplicamos fixed para que se mueva respecto a la ventana, no al div padre
+            btnNo.style.position = 'fixed';
+            btnNo.style.left = randomX + 'px';
+            btnNo.style.top = randomY + 'px';
         }
 
         btnNo.addEventListener('mouseenter', moveNoButton);
