@@ -47,7 +47,7 @@
     <script>
         const supabaseUrl = 'TU_SUPABASE_URL';
         const supabaseKey = 'TU_SUPABASE_ANON_KEY';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         const btnNo = document.getElementById('btnNo');
         const btnYes = document.getElementById('btnYes');
@@ -61,7 +61,7 @@
         async function loadInvite() {
             if (!id) return;
             
-            const { data, error } = await supabase.from('valentines').select('*').eq('id', id).single();
+            const { data, error } = await supabaseClient.from('valentines').select('*').eq('id', id).single();
             
             if (data) {
                 document.getElementById('loading').classList.add('hidden');
@@ -70,7 +70,7 @@
                 // Tracking de país (API gratuita)
                 try {
                     const geo = await fetch('https://ipapi.co/json/').then(res => res.json());
-                    await supabase.from('valentines').update({ country: geo.country_name }).eq('id', id);
+                    await supabaseClient.from('valentines').update({ country: geo.country_name }).eq('id', id);
                 } catch (e) { console.log("Geo error"); }
 
                 // Configurar mensaje final
