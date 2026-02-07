@@ -7,6 +7,7 @@ Backend/obj/
 # Frontend Angular
 Frontend/node_modules/
 Frontend/dist/
+Frontend/env-config.js
 
 # Base de datos local
 Backend/Database/*.txt

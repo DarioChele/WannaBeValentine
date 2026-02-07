@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine Link Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-pink-50 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md mx-4">
+        <h1 class="text-2xl font-bold text-pink-600 mb-6 text-center">💖 Valentine Generator</h1>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">De (From):</label>
+                <input type="text" id="from" placeholder="Tu nombre" class="w-full border-pink-300 rounded-lg p-2 border focus:outline-none focus:ring-2 focus:ring-pink-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Para (To):</label>
+                <input type="text" id="to" placeholder="Su nombre" class="w-full border-pink-300 rounded-lg p-2 border focus:outline-none focus:ring-2 focus:ring-pink-500">
+            </div>
+            <button onclick="generateLink()" class="w-full bg-pink-500 text-white py-2 rounded-lg hover:bg-pink-600 transition font-bold shadow-md">
+                Generar Link Mágico ✨
+            </button>
+        </div>
+
+        <div id="result" class="mt-6 hidden animate-bounce-in">
+            <p class="text-sm text-gray-600 mb-1">Comparte este link con tu Valentine:</p>
+            <div class="flex">
+                <input type="text" id="generatedUrl" readonly class="w-full bg-gray-100 p-2 rounded-l-lg text-xs border-y border-l border-gray-200 focus:outline-none">
+                <button onclick="copyLink()" id="copyBtn" class="bg-pink-100 px-4 rounded-r-lg text-pink-600 font-bold border-y border-r border-pink-200 hover:bg-pink-200 transition">
+                    Copiar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN ---
+        const supabaseUrl = window.ENV_SUPABASE_URL;
+        const supabaseKey = window.ENV_SUPABASE_KEY;
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // --- LÓGICA ---
+        async function generateLink() {
+            const from = document.getElementById('from').value;
+            const to = document.getElementById('to').value;
+
+            if(!from || !to) {
+                alert("Por favor rellena ambos campos 🌹");
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('valentines')
+                .insert([{ from_name: from, to_name: to }])
+                .select();
+
+            if (data && data.length > 0) {
+                const url = `${window.location.origin}/valentine.html?id=${data[0].id}`;
+                document.getElementById('generatedUrl').value = url;
+                document.getElementById('result').classList.remove('hidden');
+            } else {
+                console.error("Error con Supabase:", error);
+                alert("Hubo un error al generar el link. Revisa la consola.");
+            }
+        }
+
+        function copyLink() {
+            const copyText = document.getElementById("generatedUrl");
+            const btn = document.getElementById("copyBtn");
+            
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // Para móviles
+            navigator.clipboard.writeText(copyText.value);
+            
+            // Feedback visual rápido
+            const originalText = btn.innerText;
+            btn.innerText = "✅";
+            setTimeout(() => btn.innerText = originalText, 2000);
+        }
+    </script>
+</body>
+</html>

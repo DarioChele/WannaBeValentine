@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wanna be my Valentine? 🌹</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { touch-action: manipulation; overflow: hidden; }
+        .heart { position: absolute; pointer-events: none; animation: float 3s linear forwards; }
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
+        }
+        #btnNo { transition: all 0.1s ease; position: absolute; }
+    </style>
+</head>
+<body class="bg-pink-100 flex flex-col items-center justify-center min-h-screen p-4 text-center">
+
+    <div id="loading" class="text-pink-500 font-bold text-xl">Cargando mensaje de amor...</div>
+
+    <div id="mainContent" class="hidden">
+        <h1 id="title" class="text-4xl md:text-6xl font-extrabold text-pink-600 mb-10 drop-shadow-sm">
+            Wanna be my Valentine?
+        </h1>
+        
+        <div class="relative w-full max-w-md h-64 flex items-center justify-center gap-4">
+            <button id="btnYes" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-full text-2xl shadow-lg transform hover:scale-110 active:scale-95 transition-all">
+                YES! 💖
+            </button>
+            
+            <button id="btnNo" class="bg-red-500 text-white font-bold py-2 px-6 rounded-full text-lg shadow-md">
+                No
+            </button>
+        </div>
+    </div>
+
+    <div id="successPage" class="hidden">
+        <h1 class="text-5xl font-bold text-pink-600 mb-6">I KNEW IT! 😍</h1>
+        <p id="finalMessage" class="text-2xl text-gray-700 leading-relaxed"></p>
+        <div class="mt-8 text-7xl animate-bounce">❤️</div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'TU_SUPABASE_URL';
+        const supabaseKey = 'TU_SUPABASE_ANON_KEY';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        const btnNo = document.getElementById('btnNo');
+        const btnYes = document.getElementById('btnYes');
+        const mainContent = document.getElementById('mainContent');
+        const successPage = document.getElementById('successPage');
+
+        // 1. Obtener ID de la URL y cargar datos
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+
+        async function loadInvite() {
+            if (!id) return;
+            
+            const { data, error } = await supabase.from('valentines').select('*').eq('id', id).single();
+            
+            if (data) {
+                document.getElementById('loading').classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                
+                // Tracking de país (API gratuita)
+                try {
+                    const geo = await fetch('https://ipapi.co/json/').then(res => res.json());
+                    await supabase.from('valentines').update({ country: geo.country_name }).eq('id', id);
+                } catch (e) { console.log("Geo error"); }
+
+                // Configurar mensaje final
+                document.getElementById('finalMessage').innerText = 
+                    `Thanks for being my Valentine!\nI love you with all my heart.\n\nFrom: ${data.from_name}\nTo: ${data.to_name}`;
+            }
+        }
+
+        // 2. Lógica del botón que huye
+        function moveNoButton() {
+            const x = Math.random() * (window.innerWidth - btnNo.offsetWidth - 20);
+            const y = Math.random() * (window.innerHeight - btnNo.offsetHeight - 20);
+            btnNo.style.left = `${x}px`;
+            btnNo.style.top = `${y}px`;
+        }
+
+        btnNo.addEventListener('mouseenter', moveNoButton);
+        btnNo.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Evita el click en móviles
+            moveNoButton();
+        });
+
+        // 3. Click en YES
+        btnYes.addEventListener('click', async () => {
+            mainContent.classList.add('hidden');
+            successPage.classList.remove('hidden');
+            
+            // Opcional: Marcar como aceptado en la DB
+            await supabase.from('valentines').update({ accepted: true }).eq('id', id);
+            
+            startHearts();
+        });
+
+        function startHearts() {
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.className = 'heart';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                heart.style.top = '100vh';
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 3000);
+            }, 200);
+        }
+
+        loadInvite();
+    </script>
+</body>
+</html>
