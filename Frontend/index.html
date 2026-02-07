@@ -37,12 +37,11 @@
             </div>
         </div>
     </div>
-
     <script>
         // --- CONFIGURACIÓN ---
         const supabaseUrl = window.ENV_SUPABASE_URL;
-        const supabaseKey = window.ENV_SUPABASE_KEY;
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseKey = window.ENV_SUPABASE_KEY;        
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey); // Cambié el nombre a supabaseClient para evitar conflictos
 
         // --- LÓGICA ---
         async function generateLink() {
@@ -54,7 +53,7 @@
                 return;
             }
 
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('valentines')
                 .insert([{ from_name: from, to_name: to }])
                 .select();
@@ -64,8 +63,8 @@
                 document.getElementById('generatedUrl').value = url;
                 document.getElementById('result').classList.remove('hidden');
             } else {
-                console.error("Error con Supabase:", error);
-                alert("Hubo un error al generar el link. Revisa la consola.");
+                console.error("Error con supabaseClient:", error);
+                alert("Error al conectar con la base de datos.");
             }
         }
 
