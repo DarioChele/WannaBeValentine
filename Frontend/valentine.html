@@ -115,7 +115,7 @@
             successPage.classList.remove('hidden');
             
             // Opcional: Marcar como aceptado en la DB
-            await supabase.from('valentines').update({ accepted: true }).eq('id', id);
+            await supabaseClient.from('valentines').update({ accepted: true }).eq('id', id);
             
             startHearts();
         });
