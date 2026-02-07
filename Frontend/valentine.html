@@ -45,9 +45,9 @@
     </div>
 
     <script>
-        const supabaseUrl = 'TU_SUPABASE_URL';
-        const supabaseKey = 'TU_SUPABASE_ANON_KEY';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseUrl = window.ENV_SUPABASE_URL;
+        const supabaseKey = window.ENV_SUPABASE_KEY;        
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey); // Cambié el nombre a supabaseClient para evitar conflictos
 
         const btnNo = document.getElementById('btnNo');
         const btnYes = document.getElementById('btnYes');

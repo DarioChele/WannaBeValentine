@@ -38,12 +38,11 @@
             </table>
         </div>
     </div>
-
     <script>
-        async function loadStats() {
-            const supabase = supabase.createClient(window.ENV_SUPABASE_URL, window.ENV_SUPABASE_KEY);
+        async function loadStats() {            
+            const supabaseClient = supabase.createClient(window.ENV_SUPABASE_URL, window.ENV_SUPABASE_KEY);
             
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('valentines')
                 .select('*')
                 .order('created_at', { ascending: false });
