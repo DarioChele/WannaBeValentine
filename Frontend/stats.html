@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Valentine Stats 📈</title>
+    <link rel="icon" href="https://fav.farm/💖" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="env-config.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-pink-600 mb-8 text-center">Valentine Dashboard 📊</h1>
+        
+        <div id="summary" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 text-center">
+            <div class="bg-white p-6 rounded-xl shadow">
+                <p class="text-gray-500">Total Invitaciones</p>
+                <p id="totalCount" class="text-4xl font-bold">0</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow">
+                <p class="text-gray-500">Países Únicos</p>
+                <p id="countryCount" class="text-4xl font-bold">0</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-pink-500 text-white">
+                    <tr>
+                        <th class="p-4">De</th>
+                        <th class="p-4">Para</th>
+                        <th class="p-4">País</th>
+                        <th class="p-4">¿Aceptó?</th>
+                    </tr>
+                </thead>
+                <tbody id="statsTable">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function loadStats() {
+            const supabase = supabase.createClient(window.ENV_SUPABASE_URL, window.ENV_SUPABASE_KEY);
+            
+            const { data, error } = await supabase
+                .from('valentines')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (data) {
+                document.getElementById('totalCount').innerText = data.length;
+                const countries = [...new Set(data.map(d => d.country))];
+                document.getElementById('countryCount').innerText = countries.length;
+
+                const table = document.getElementById('statsTable');
+                table.innerHTML = data.map(v => `
+                    <tr class="border-b">
+                        <td class="p-4">${v.from_name}</td>
+                        <td class="p-4">${v.to_name}</td>
+                        <td class="p-4 font-mono text-sm">${v.country || 'Buscando...'}</td>
+                        <td class="p-4">${v.accepted ? '✅ SI' : '⏳ Esperando'}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+        loadStats();
+    </script>
+</body>
+</html>
